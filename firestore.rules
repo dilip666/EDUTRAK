@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: uid, email, name, role (teacher/principal), createdAt
+    //
+    // Collection: reports
+    // Fields: teacherId, teacherName, date, week, className, syllabusStatus, ...
+    //
+    // Collection: observations
+    // Fields: type, observerId, observerName, targetTeacherId, targetTeacherName, date, data, createdAt
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'principal' ||
+         (request.auth.token.email == "dksdks777@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['teacher', 'principal'];
+    }
+
+    function isValidReport(data) {
+      return data.keys().hasAll(['teacherId', 'date', 'className']) &&
+             data.teacherId is string &&
+             data.date is string &&
+             data.className is string;
+    }
+
+    function isValidObservation(data) {
+      return data.keys().hasAll(['type', 'observerId', 'targetTeacherId', 'date']) &&
+             data.type in ['lesson', 'peer', 'micro'] &&
+             data.observerId is string &&
+             data.targetTeacherId is string &&
+             data.date is string;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin()) && isValidUser(request.resource.data);
+    }
+
+    match /reports/{reportId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.teacherId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.teacherId && isValidReport(request.resource.data);
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.teacherId || isAdmin()) && isValidReport(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /observations/{obsId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.observerId || request.auth.uid == resource.data.targetTeacherId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.observerId && isValidObservation(request.resource.data);
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.observerId || isAdmin()) && isValidObservation(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}

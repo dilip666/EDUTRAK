@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["teacher", "principal"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "DailyReport": {
+      "title": "Daily Report",
+      "description": "Daily academic process data submitted by teachers",
+      "type": "object",
+      "properties": {
+        "teacherId": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "week": { "type": "number" },
+        "className": { "type": "string" },
+        "syllabusStatus": { "type": "string" },
+        "dailyPlanReview": { "type": "string" },
+        "notebookCorrection": { "type": "boolean" },
+        "proxyPeriods": { "type": "number" },
+        "cwCompletion": { "type": "number" },
+        "hwCompletion": { "type": "number" },
+        "classTask": { "type": "string" },
+        "followUp": { "type": "string" },
+        "remedialPlan": { "type": "string" },
+        "remedialReview": { "type": "string" },
+        "studentAnecdote": { "type": "string" },
+        "disciplineIssues": { "type": "string" },
+        "assemblyRecord": { "type": "string" },
+        "principalSupport": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["teacherId", "date", "className"]
+    },
+    "Observation": {
+      "title": "Observation",
+      "description": "Structured observation formats (Lesson, Peer, Micro Teaching)",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["lesson", "peer", "micro"] },
+        "observerId": { "type": "string" },
+        "observerName": { "type": "string" },
+        "targetTeacherId": { "type": "string" },
+        "targetTeacherName": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "data": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["type", "observerId", "targetTeacherId", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/reports/{reportId}": {
+      "schema": "DailyReport",
+      "description": "Daily academic reports"
+    },
+    "/observations/{obsId}": {
+      "schema": "Observation",
+      "description": "Observation records"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-slate-50: #F8FAFC;
+  --color-slate-100: #F1F5F9;
+  --color-slate-200: #E2E8F0;
+  --color-slate-400: #94A3B8;
+  --color-slate-500: #64748B;
+  --color-slate-800: #1E293B;
+  --color-slate-900: #0F172A;
+  
+  --color-blue-500: #3B82F6;
+  --color-blue-600: #2563EB;
+  --color-sky-400: #38BDF8;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+}
+
+@layer components {
+  .hd-card {
+    @apply bg-white border border-slate-200 rounded-lg p-4 shadow-sm;
+  }
+  
+  .hd-card-title {
+    @apply text-[11px] font-bold uppercase text-slate-500 tracking-wider mb-3 flex justify-between items-center;
+  }
+  
+  .hd-stat-value {
+    @apply text-2xl font-bold text-slate-900;
+  }
+  
+  .hd-stat-sub {
+    @apply text-[11px] text-slate-500 mt-1;
+  }
+  
+  .hd-table {
+    @apply w-full text-left text-xs border-collapse;
+  }
+  
+  .hd-table th {
+    @apply p-2.5 bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold;
+  }
+  
+  .hd-table td {
+    @apply p-2.5 border-b border-slate-100;
+  }
+  
+  .hd-pill {
+    @apply px-1.5 py-0.5 rounded text-[10px] font-bold text-center;
+  }
+  
+  .hd-pill-outstanding { @apply bg-green-100 text-green-800; }
+  .hd-pill-good { @apply bg-blue-100 text-blue-800; }
+  .hd-pill-fair { @apply bg-amber-100 text-amber-800; }
+  .hd-pill-nsi { @apply bg-red-100 text-red-800; }
+}
+
