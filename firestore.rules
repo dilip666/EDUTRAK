@@ -14,6 +14,9 @@ service cloud.firestore {
     // Collection: observations
     // Fields: type, observerId, observerName, targetTeacherId, targetTeacherName, date, data, createdAt
     //
+    // Collection: topicPlans
+    // Fields: teacherId, teacherName, className, subject, topicName, startDate, endDate, plannedPeriods, completedPeriods, createdAt
+    //
     // ===============================================================
 
     // ===============================================================
@@ -30,7 +33,7 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && 
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'principal' ||
-         (request.auth.token.email == "dksdks777@gmail.com" && request.auth.token.email_verified == true));
+         (request.auth.token.email in ["dksdks777@gmail.com", "dilip.sharma@podar.org"] && request.auth.token.email_verified == true));
     }
 
     function isValidUser(data) {
@@ -55,6 +58,16 @@ service cloud.firestore {
              data.date is string;
     }
 
+    function isValidTopicPlan(data) {
+      return data.keys().hasAll(['teacherId', 'className', 'subject', 'topicName', 'plannedPeriods']) &&
+             data.teacherId is string &&
+             data.className is string &&
+             data.subject is string &&
+             data.topicName is string &&
+             data.plannedPeriods is number &&
+             data.completedPeriods is number;
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
@@ -76,6 +89,13 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (request.auth.uid == resource.data.observerId || request.auth.uid == resource.data.targetTeacherId || isAdmin());
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.observerId && isValidObservation(request.resource.data);
       allow update: if isAuthenticated() && (request.auth.uid == resource.data.observerId || isAdmin()) && isValidObservation(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /topicPlans/{planId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.teacherId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.teacherId && isValidTopicPlan(request.resource.data);
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.teacherId || isAdmin()) && isValidTopicPlan(request.resource.data);
       allow delete: if isAdmin();
     }
   }

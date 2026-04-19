@@ -49,10 +49,23 @@ export interface Observation {
 export interface LessonObservationData {
   subject: string;
   topic: string;
-  rating: 1 | 2 | 3 | 4; // NSI-1, Fair-2, Good-3, Outstanding-4
-  strengths: string;
-  areasForImprovement: string;
-  actionPlan: string;
+  className: string;
+  section: string;
+  period: string;
+  criteria: {
+    subjectKnowledge: number;
+    languageQuality: number;
+    studentEngagement: number;
+    learningOutcomes: number;
+    classroomCulture: number;
+  };
+  totalMarks: number;
+  average: number;
+  rating: 1 | 2 | 3 | 4; // Map to NSI-1, Fair-2, Good-3, Outstanding-4
+  strengths?: string;
+  areasForImprovement?: string;
+  actionPlan?: string;
+  feedback?: string;
 }
 
 export interface PeerObservationData {
@@ -68,4 +81,18 @@ export interface MicroTeachingData {
   beforeNotes: string;
   duringNotes: string;
   afterNotes: string;
+}
+
+export interface TopicPlan {
+  id?: string;
+  teacherId: string;
+  teacherName: string;
+  className: string;
+  subject: string;
+  topicName: string;
+  startDate: string;
+  endDate: string;
+  plannedPeriods: number;
+  completedPeriods: number;
+  createdAt: string;
 }

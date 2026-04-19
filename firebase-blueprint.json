@@ -56,6 +56,24 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["type", "observerId", "targetTeacherId", "date"]
+    },
+    "TopicPlan": {
+      "title": "Topic Plan",
+      "description": "Syllabus tracking plan for teachers",
+      "type": "object",
+      "properties": {
+        "teacherId": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "className": { "type": "string" },
+        "subject": { "type": "string" },
+        "topicName": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "plannedPeriods": { "type": "number" },
+        "completedPeriods": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["teacherId", "className", "subject", "topicName", "plannedPeriods"]
     }
   },
   "firestore": {
@@ -70,6 +88,10 @@
     "/observations/{obsId}": {
       "schema": "Observation",
       "description": "Observation records"
+    },
+    "/topicPlans/{planId}": {
+      "schema": "TopicPlan",
+      "description": "Syllabus tracking records"
     }
   }
 }

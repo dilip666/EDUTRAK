@@ -1,16 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
-import { LogOut, LayoutDashboard, FileText, ClipboardList, User as UserIcon, Menu, X, Users } from 'lucide-react';
+import { LogOut, LayoutDashboard, FileText, ClipboardList, User as UserIcon, Menu, X, Users, BookOpen } from 'lucide-react';
 import { cn } from './lib/utils';
 import { motion } from 'motion/react';
 import TeacherDashboard from './components/TeacherDashboard';
 import PrincipalDashboard from './components/PrincipalDashboard';
 import DailyReportForm from './components/DailyReportForm';
 import ObservationForm from './components/ObservationForm';
+import TopicTracker from './components/TopicTracker';
 
 function Navbar() {
-  const { profile, logout } = useAuth();
+  const { profile, logout, toggleRole } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
 
   if (!profile) return null;
@@ -18,9 +19,11 @@ function Navbar() {
   const navItems = profile.role === 'teacher' ? [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Daily Report', path: '/report', icon: FileText },
+    { name: 'Topic Tracker', path: '/topics', icon: BookOpen },
     { name: 'Observations', path: '/observe', icon: ClipboardList },
   ] : [
     { name: 'Executive Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Topic Progress', path: '/topics', icon: BookOpen },
     { name: 'Lesson Observations', path: '/observations', icon: ClipboardList },
     { name: 'Peer Review (A/B)', path: '/peer-review', icon: Users },
     { name: 'Notebook Logs', path: '/notebooks', icon: FileText },
@@ -58,13 +61,22 @@ function Navbar() {
               <p className="text-[10px] opacity-50 uppercase">{profile.role}</p>
             </div>
           </div>
-          <button
-            onClick={() => logout()}
-            className="flex items-center gap-2 text-xs text-red-400 hover:text-red-300 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={() => toggleRole()}
+              className="w-full flex items-center gap-2 text-[10px] font-bold text-sky-400 hover:text-sky-300 transition-colors uppercase tracking-wider"
+            >
+              <UserIcon className="w-3 h-3" />
+              Switch to {profile.role === 'principal' ? 'Teacher' : 'Principal'}
+            </button>
+            <button
+              onClick={() => logout()}
+              className="w-full flex items-center gap-2 text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-wider"
+            >
+              <LogOut className="w-3 h-3" />
+              Logout
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -92,13 +104,13 @@ function Navbar() {
           <motion.div
             initial={{ x: -200 }}
             animate={{ x: 0 }}
-            className="w-[200px] h-full bg-slate-800"
+            className="w-[200px] h-full bg-slate-800 flex flex-col"
             onClick={e => e.stopPropagation()}
           >
             <div className="p-5 font-extrabold text-lg tracking-tighter text-sky-400">
               EDUTRAK 2.0
             </div>
-            <nav className="mt-4">
+            <nav className="mt-4 flex-grow">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
@@ -111,6 +123,36 @@ function Navbar() {
                 </Link>
               ))}
             </nav>
+            <div className="p-5 border-t border-slate-700">
+              <div className="flex items-center gap-3 mb-4 text-slate-100">
+                <div className="w-8 h-8 rounded bg-slate-700 flex items-center justify-center text-xs font-bold">
+                  {profile.name.charAt(0)}
+                </div>
+                <div className="overflow-hidden">
+                  <p className="text-xs font-bold truncate">{profile.name}</p>
+                  <p className="text-[10px] opacity-50 uppercase">{profile.role}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    toggleRole();
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2 text-[10px] font-bold text-sky-400 hover:text-sky-300 transition-colors uppercase tracking-wider"
+                >
+                  <UserIcon className="w-3 h-3" />
+                  Switch to {profile.role === 'principal' ? 'Teacher' : 'Principal'}
+                </button>
+                <button
+                  onClick={() => logout()}
+                  className="w-full flex items-center gap-2 text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-wider"
+                >
+                  <LogOut className="w-3 h-3" />
+                  Logout
+                </button>
+              </div>
+            </div>
           </motion.div>
         </div>
       )}
@@ -119,7 +161,8 @@ function Navbar() {
 }
 
 function Login() {
-  const { login } = useAuth();
+  const { user, login } = useAuth();
+  if (user) return <Navigate to="/" />;
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <div className="max-w-md w-full space-y-8 text-center">
@@ -173,6 +216,7 @@ export default function App() {
                       <Routes>
                         <Route path="/" element={<DashboardRouter />} />
                         <Route path="/report" element={<DailyReportForm />} />
+                        <Route path="/topics" element={<TopicTracker />} />
                         <Route path="/observe" element={<ObservationForm />} />
                       </Routes>
                     </main>

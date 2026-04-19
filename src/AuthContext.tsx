@@ -10,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
+  toggleRole: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,7 +31,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setProfile(docSnap.data() as UserProfile);
         } else {
           // Default role assignment logic
-          const isPrincipal = user.email === 'dksdks777@gmail.com';
+          const admins = ['dksdks777@gmail.com', 'dilip.sharma@podar.org'];
+          const isPrincipal = admins.includes(user.email || '');
           const newProfile: UserProfile = {
             uid: user.uid,
             email: user.email || '',
@@ -52,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     await signInWithPopup(auth, provider);
   };
 
@@ -59,8 +62,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signOut(auth);
   };
 
+  const toggleRole = async () => {
+    if (!profile || !user) return;
+    const newRole = profile.role === 'principal' ? 'teacher' : 'principal';
+    const docRef = doc(db, 'users', user.uid);
+    const updatedProfile = { ...profile, role: newRole };
+    await setDoc(docRef, updatedProfile);
+    setProfile(updatedProfile);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, profile, loading, login, logout, toggleRole }}>
       {children}
     </AuthContext.Provider>
   );
